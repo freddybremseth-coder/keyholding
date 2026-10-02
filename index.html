@@ -1408,6 +1408,10 @@
         data.get('freq') ? 'Tid i Spania: ' + String(data.get('freq')) : ''
       ].filter(Boolean);
 
+      const allowedServices = ['keyholding', 'boligtilsyn', 'nokkeloppbevaring', 'klargjoring', 'uvaer'];
+      const requestedService = String(params.get('service') || 'keyholding').toLowerCase();
+      const serviceIntent = allowedServices.includes(requestedService) ? requestedService : 'keyholding';
+
       const payload = {
         name: String(data.get('name') || ''),
         phone: String(data.get('phone') || ''),
@@ -1415,8 +1419,8 @@
         property_type: String(data.get('type') || ''),
         preferred_area: String(data.get('location') || ''),
         message: messageParts.join('\n'),
-        source: 'zeneco-care-keyholding',
-        request_type: 'keyholding',
+        source: 'zeneco-care-' + serviceIntent,
+        request_type: 'care-' + serviceIntent,
         page_url: window.location.href,
         utm_source: params.get('utm_source'),
         utm_medium: params.get('utm_medium'),
@@ -1438,6 +1442,9 @@
         form.reset();
         success.classList.remove('hidden');
         button.textContent = 'Sendt ✓';
+        if (typeof window.careTrackConversion === 'function') {
+          window.careTrackConversion('contact', 'care_lead_submit_' + serviceIntent);
+        }
         window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
       } catch (err) {
         console.warn('[care lead]', err);
@@ -1450,5 +1457,6 @@
   }
 </script>
 
+<script defer src="/care-analytics.js"></script>
 </body>
 </html>
