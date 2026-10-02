@@ -1207,8 +1207,8 @@
 
     <form id="leadForm" class="lg:col-span-7 lg:col-start-7 bg-bone text-ink p-8 lg:p-12 rounded-sm">
       <div class="flex items-center justify-between mb-7">
-        <span class="eyebrow text-stone">Forespørsel · 03:00 min</span>
-        <span class="mono text-xs text-olive">SVAR &lt; 4 t</span>
+        <span class="eyebrow text-stone">Forespørsel · ca. 3 min</span>
+        <span class="mono text-xs text-olive">PERSONLIG OPPFØLGING</span>
       </div>
 
       <div class="grid sm:grid-cols-2 gap-5">
@@ -1225,6 +1225,17 @@
           <input required type="email" name="email" class="mt-2 w-full bg-transparent border-b border-ink/25 focus:border-clay focus:outline-none py-3 text-lg serif" placeholder="ola@navn.no" />
         </label>
       </div>
+
+      <fieldset class="mt-9">
+        <legend class="eyebrow text-stone mb-4">Hva gjelder forespørselen?</legend>
+        <select id="careService" name="service" class="w-full bg-transparent border border-ink/20 rounded-full px-5 py-3.5 text-base focus:border-clay focus:outline-none">
+          <option value="keyholding">Keyholding / samlet boligoppfølging</option>
+          <option value="boligtilsyn">Boligtilsyn</option>
+          <option value="nokkeloppbevaring">Nøkkeloppbevaring</option>
+          <option value="klargjoring">Klargjøring før ankomst</option>
+          <option value="uvaer">Ekstra tilsyn etter uvær</option>
+        </select>
+      </fieldset>
 
       <fieldset class="mt-9">
         <legend class="eyebrow text-stone mb-4">Boligtype</legend>
@@ -1274,12 +1285,12 @@
       </fieldset>
 
       <label class="block mt-9">
-        <span class="eyebrow text-stone">Fortell kort om boligen — bassang, hage, alarm, antall soverom?</span>
+        <span class="eyebrow text-stone">Fortell kort om boligen — basseng, hage, alarm, antall soverom?</span>
         <textarea name="msg" rows="4" class="mt-2 w-full bg-transparent border-b border-ink/25 focus:border-clay focus:outline-none py-3 text-base resize-none" placeholder="Eks: Villa i La Nucia, 3 soverom, basseng, alarm fra Securitas. Vi er nede 8 uker pr år."></textarea>
       </label>
 
       <div class="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-        <span class="text-xs text-stone max-w-xs leading-relaxed">Ved å sende ber du Zen Eco Homes Care om å kontakte deg om keyholding. Se <a class="underline" href="https://www.zenecohomes.com/personvern">personvern</a>.</span>
+        <span class="text-xs text-stone max-w-xs leading-relaxed">Ved å sende ber du Zen Eco Homes Care om å kontakte deg om den valgte tjenesten. Se <a class="underline" href="https://www.zenecohomes.com/personvern">personvern</a>.</span>
         <button type="submit" class="btn-primary px-8 py-4 rounded-full text-base inline-flex items-center gap-3 self-start">
           Send forespørsel
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
@@ -1370,6 +1381,12 @@
   // Send Care leads to Zen Eco Homes / RealtyFlow.
   const form = document.getElementById('leadForm');
   if (form) {
+    const initialParams = new URLSearchParams(window.location.search);
+    const initialService = String(initialParams.get('service') || '').toLowerCase();
+    const serviceSelect = document.getElementById('careService');
+    if (serviceSelect && ['keyholding', 'boligtilsyn', 'nokkeloppbevaring', 'klargjoring', 'uvaer'].includes(initialService)) {
+      serviceSelect.value = initialService;
+    }
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       const button = form.querySelector('button[type=submit]');
@@ -1386,7 +1403,7 @@
       ].filter(Boolean);
 
       const allowedServices = ['keyholding', 'boligtilsyn', 'nokkeloppbevaring', 'klargjoring', 'uvaer'];
-      const requestedService = String(params.get('service') || 'keyholding').toLowerCase();
+      const requestedService = String(data.get('service') || params.get('service') || 'keyholding').toLowerCase();
       const serviceIntent = allowedServices.includes(requestedService) ? requestedService : 'keyholding';
 
       const payload = {
