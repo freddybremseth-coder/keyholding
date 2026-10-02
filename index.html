@@ -1442,6 +1442,9 @@
         form.reset();
         success.classList.remove('hidden');
         button.textContent = 'Sendt ✓';
+        if (typeof window.careTrackConversion === 'function') {
+          window.careTrackConversion('contact', 'care_lead_submit_' + serviceIntent);
+        }
         window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
       } catch (err) {
         console.warn('[care lead]', err);
@@ -1454,5 +1457,6 @@
   }
 </script>
 
+<script defer src="/care-analytics.js"></script>
 </body>
 </html>
